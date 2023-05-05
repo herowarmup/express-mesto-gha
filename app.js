@@ -8,6 +8,7 @@ const auth = require('./middleware/auth');
 const { createUser, login } = require('./controllers/users');
 const { validateUserData } = require('./middleware/validators/userValidator');
 const { errorHandler } = require('./middleware/errorHandler');
+const cookieParser = require('cookie-parser');
 
 const { PORT = 3000 } = process.env;
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/signin', validateUserData, login);
 app.post('/signup', validateUserData, createUser);
 
+app.use(cookieParser());
 app.use(auth);
 
 app.use(userRouter);

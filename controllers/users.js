@@ -61,6 +61,11 @@ async function createUser(req, res) {
 
 async function updateUser(req, res) {
   const { name, about } = req.body;
+
+  if (!req.user) {
+    return res.status(401).json({ message: 'Необходима авторизация' });
+  }
+
   const userId = req.user._id;
 
   if (!name) {
@@ -82,14 +87,12 @@ async function updateUser(req, res) {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      res.status(404).send({ message: 'Пользователь не найден' });
-    } else {
-      return res.send(updatedUser);
+      return res.status(404).send({ message: 'Пользователь не найден' });
     }
+    return res.send(updatedUser);
   } catch (err) {
     errorHandler(err, res);
   }
-  return updateUser;
 }
 
 async function updateAvatar(req, res) {

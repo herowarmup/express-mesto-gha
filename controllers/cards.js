@@ -3,23 +3,30 @@ const { errorHandler } = require('../middleware/errorHandler');
 
 async function getCards(req, res) {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Необходима авторизация' });
+    }
     const cards = await Card.find({});
     res.send({ data: cards });
   } catch (err) {
     errorHandler(err, res);
   }
+  return undefined;
 }
 
 async function createCard(req, res) {
-  const { name, link } = req.body;
-  const owner = req.user._id;
-
   try {
+    const { name, link } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ message: 'Необходима авторизация' });
+    }
+    const owner = req.user._id;
     const card = await Card.create({ name, link, owner });
-    res.status(201).send({ data: card });
+    res.send(card);
   } catch (err) {
     errorHandler(err, res);
   }
+  return undefined;
 }
 
 async function deleteCard(req, res) {

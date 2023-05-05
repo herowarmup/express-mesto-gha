@@ -99,6 +99,11 @@ async function updateUser(req, res) {
 
 async function updateAvatar(req, res) {
   const { avatar } = req.body;
+
+  if (!req.user) {
+    return res.status(401).json({ message: 'Необходима авторизация' });
+  }
+
   const userId = req.user._id;
 
   try {
@@ -111,6 +116,7 @@ async function updateAvatar(req, res) {
   } catch (err) {
     errorHandler(err, res);
   }
+  return undefined;
 }
 
 async function login(req, res) {

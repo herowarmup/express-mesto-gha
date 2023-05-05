@@ -26,11 +26,11 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/signin', validateUserData, login);
 app.post('/signup', validateUserData, createUser);
 
-app.use(cookieParser());
-app.use(auth);
-
 app.use(userRouter);
 app.use(cardsRouter);
+
+app.use(cookieParser());
+app.use(auth);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'page not found' });

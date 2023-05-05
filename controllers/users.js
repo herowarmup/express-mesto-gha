@@ -93,6 +93,8 @@ async function updateUser(req, res) {
   } catch (err) {
     errorHandler(err, res);
   }
+
+  return undefined;
 }
 
 async function updateAvatar(req, res) {

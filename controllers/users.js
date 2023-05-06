@@ -160,6 +160,9 @@ async function login(req, res) {
 
 async function getCurrentUser(req, res) {
   try {
+    if (!req.user) {
+      return res.status(401).send({ message: 'Пользователь не авторизован' });
+    }
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).send({ message: 'Пользователь не найден' });

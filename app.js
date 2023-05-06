@@ -30,9 +30,8 @@ app.use(userRouter);
 app.use(cardsRouter);
 
 app.use(cookieParser());
-app.use(auth);
 
-app.use('*', (req, res) => {
+app.use('*', auth, (req, res) => {
   res.status(404).send({ message: 'page not found' });
 });
 

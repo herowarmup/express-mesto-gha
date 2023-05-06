@@ -32,34 +32,23 @@ async function getUser(req, res) {
 }
 
 async function createUser(req, res) {
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => User.create({
-      email: req.body.email,
-      password: hash,
-    }))
-    .then((user) => {
-      const { _id, email } = user;
-      res.status(201).json({ _id, email });
-    })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
   const {
     name, about, avatar, email, password,
   } = req.body;
 
   try {
+    const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
+      email,
+      password: hash,
       name,
       about,
       avatar,
-      email,
-      password,
     });
 
     res.status(201).send({ user });
   } catch (err) {
+    console.log(err);
     errorHandler(err, res);
   }
 }

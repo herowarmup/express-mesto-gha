@@ -1,20 +1,22 @@
 const { isCelebrateError } = require('celebrate');
 const mongooseError = require('mongoose').Error;
-const { BAD_REQUEST } = require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
 
 function errorHandler(err, res) {
-  let statusCode = 500;
+  let statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
   let message = 'Internal Server Error';
 
   if (isCelebrateError(err)) {
     const [errData] = err.details.values().next().value.details;
-    res.status(BAD_REQUEST).send({ message: errData.message });
-    return;
-  }
-
-  if (err instanceof mongooseError.CastError || err.status === 404) {
-    statusCode = 400;
-    message = 'Bad Request';
+    statusCode = StatusCodes.BAD_REQUEST;
+    message = errData.message;
+  } else if (err instanceof mongooseError.ValidationError) {
+    statusCode = StatusCodes.BAD_REQUEST;
+    const [errorKey, errorValue] = Object.entries(err.errors)[0];
+    message = `Validation error for '${errorKey}': ${errorValue.message}`;
+  } else if (err instanceof mongooseError.CastError || err.status === 404) {
+    statusCode = StatusCodes.NOT_FOUND;
+    message = 'Not Found';
   }
 
   res.status(statusCode).json({ message });

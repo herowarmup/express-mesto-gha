@@ -10,7 +10,7 @@ router.post('/signup', validateUserData, createUser);
 router.post('/signin', validateUserData, login);
 
 router.use('/users', auth, users);
-router.use('/users', auth, cards);
+router.use('/cards', auth, cards);
 
 router.use('*', auth, (req, res) => {
   res.status(404).send({ message: 'page not found' });

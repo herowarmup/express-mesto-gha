@@ -172,7 +172,7 @@ async function getCurrentUser(req, res) {
       email: user.email,
     });
   } catch (err) {
-    console.error(err); // добавляем вывод ошибки в консоль сервера
+    console.error(err);
     return res.status(500).send({ message: 'Ошибка на сервере' });
   }
 }

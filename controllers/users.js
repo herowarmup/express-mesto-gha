@@ -148,9 +148,9 @@ async function login(req, res) {
       sameSite: true,
     });
 
-    res.send({ token });
+    return res.send({ token });
   } catch (err) {
-    res.status(401).send({ message: err.message });
+    return res.status(401).send({ message: err.message });
   }
 }
 

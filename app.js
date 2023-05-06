@@ -1,19 +1,13 @@
 const express = require('express');
-const { errors } = require('celebrate');
-
 const mongoose = require('mongoose');
+
+const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
-const auth = require('./middleware/auth');
-const { createUser, login } = require('./controllers/users');
-
-const userRouter = require('./routes/users');
-const cardsRouter = require('./routes/cards');
-
-const { validateUserData } = require('./middleware/validators/userValidator');
 const { errorHandler } = require('./middleware/errorHandler');
 
-const { PORT = 3000 } = process.env;
+const router = require('./routes/index');
 
+const { PORT = 3000 } = process.env;
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -22,18 +16,9 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.post('/signin', validateUserData, login);
-app.post('/signup', validateUserData, createUser);
-
-app.use(userRouter);
-app.use(cardsRouter);
-
 app.use(cookieParser());
 
-app.use('*', auth, (req, res) => {
-  res.status(404).send({ message: 'page not found' });
-});
+app.use(router);
 
 app.use(errors());
 app.use(errorHandler);

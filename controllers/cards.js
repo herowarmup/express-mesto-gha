@@ -47,11 +47,11 @@ async function deleteCard(req, res) {
 }
 
 async function likeCard(req, res) {
-  const { id } = req.params;
+  const { cardId } = req.params;
 
   try {
     const card = await Card.findByIdAndUpdate(
-      id,
+      cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true, runValidators: true },
     );

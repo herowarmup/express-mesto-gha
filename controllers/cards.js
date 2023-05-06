@@ -71,18 +71,18 @@ async function likeCard(req, res) {
 
 async function dislikeCard(req, res) {
   const { id } = req.params;
+  const userId = req.user._id;
 
   try {
-    const card = await Card.findByIdAndUpdate(
-      id,
-      { $pull: { likes: req.user._id } },
+    const card = await Card.findOneAndUpdate(
+      { _id: id, likes: userId },
+      { $pull: { likes: userId } },
       { new: true, runValidators: true },
     );
     if (!card) {
-      res.status(404).send({ message: 'Карточка не найдена' });
-    } else {
-      res.send({ data: card });
+      return res.status(404).send({ message: 'Карточка не найдена' });
     }
+    res.send({ data: card });
   } catch (err) {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -90,6 +90,8 @@ async function dislikeCard(req, res) {
       errorHandler(err, res);
     }
   }
+
+  return undefined;
 }
 
 module.exports = {

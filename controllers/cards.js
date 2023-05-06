@@ -74,20 +74,15 @@ async function dislikeCard(req, res) {
   const userId = req.user._id;
 
   try {
-    const card = await Card.findOne({ _id: cardId }).populate('likes');
+    const card = await Card.findOneAndUpdate(
+      { _id: cardId, likes: userId },
+      { $pull: { likes: userId } },
+      { new: true, runValidators: true },
+    );
     if (!card) {
       return res.status(404).send({ message: 'Карточка не найдена' });
     }
-    const userLikes = card.likes.map((like) => like.toString());
-    if (!userLikes.includes(userId)) {
-      return res.status(400).send({ message: 'Вы еще не поставили лайк на эту карточку' });
-    }
-    const updatedCard = await Card.findOneAndUpdate(
-      { _id: cardId },
-      { $pull: { likes: userId } },
-      { new: true, runValidators: true },
-    ).populate('likes');
-    res.send({ data: updatedCard });
+    res.send({ data: card });
   } catch (err) {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -95,6 +90,7 @@ async function dislikeCard(req, res) {
       errorHandler(err, res);
     }
   }
+
   return undefined;
 }
 

@@ -131,20 +131,27 @@ async function updateAvatar(req, res) {
 async function login(req, res) {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'secret-phrase-1234', { expiresIn: '7d' });
+  try {
+    const user = await User.findOne({ email }).select(password);
 
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-        sameSite: true,
-      })
-        .send({ token });
-    })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
+    if (!user) {
+      return res.status(401).send({ message: 'Пользователь не найден' });
+    }
+
+    const token = jwt.sign({ _id: user._id }, 'secret-phrase-1234', {
+      expiresIn: '7d',
     });
+
+    res.cookie('jwt', token, {
+      maxAge: 3600000,
+      httpOnly: true,
+      sameSite: true,
+    });
+
+    res.send({ token });
+  } catch (err) {
+    res.status(401).send({ message: err.message });
+  }
 }
 
 async function getCurrentUser(req, res) {

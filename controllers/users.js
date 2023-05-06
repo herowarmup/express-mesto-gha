@@ -37,6 +37,11 @@ async function createUser(req, res) {
   } = req.body;
 
   try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).send({ message: 'Такой email уже зарегистрирован' });
+    }
+
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
       email,
@@ -57,7 +62,10 @@ async function createUser(req, res) {
     res.status(201).send({ user: userWithoutPassword });
   } catch (err) {
     errorHandler(err, res);
+    res.status(500).send({});
   }
+
+  return undefined;
 }
 
 async function updateUser(req, res) {

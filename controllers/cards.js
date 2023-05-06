@@ -34,6 +34,8 @@ async function deleteCard(req, res) {
     const card = await Card.findOneAndRemove({ _id: req.params.cardId, owner: req.user._id });
     if (!card) {
       res.status(403).send({ message: 'Нельзя удалять чужие карточки' });
+    } else if (card === null) {
+      res.status(404).send({ message: 'Карточка не найдена' });
     } else {
       res.send({ data: card });
     }

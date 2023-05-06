@@ -31,13 +31,14 @@ async function createCard(req, res) {
 
 async function deleteCard(req, res) {
   try {
-    const card = await Card.findOneAndRemove({ _id: req.params.cardId, owner: req.user._id });
+    const card = await Card.findOne({ _id: req.params.cardId });
     if (!card) {
-      res.status(403).send({ message: 'Нельзя удалять чужие карточки' });
-    } else if (card === null) {
       res.status(404).send({ message: 'Карточка не найдена' });
+    } else if (card.owner.toString() !== req.user._id) {
+      res.status(403).send({ message: 'Нельзя удалять чужие карточки' });
     } else {
-      res.send({ data: card });
+      const deletedCard = await Card.findByIdAndRemove(req.params.cardId);
+      res.send({ data: deletedCard });
     }
   } catch (err) {
     if (err.name === 'CastError') {

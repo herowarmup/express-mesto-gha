@@ -46,9 +46,16 @@ async function createUser(req, res) {
       avatar,
     });
 
-    res.status(201).send({ user });
+    const userWithoutPassword = {
+      _id: user._id,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    };
+
+    res.status(201).send({ user: userWithoutPassword });
   } catch (err) {
-    console.log(err);
     errorHandler(err, res);
   }
 }

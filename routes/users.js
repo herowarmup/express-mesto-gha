@@ -12,6 +12,6 @@ usersRouter.get('/users/:id', validateUserId, getUser);
 usersRouter.patch('/users/me', validateUserInfo, updateUser);
 usersRouter.patch('/users/me/avatar', validateAvatar, updateAvatar);
 
-usersRouter.get('/me', getCurrentUser);
+usersRouter.get('/users/me', getCurrentUser);
 
 module.exports = usersRouter;

@@ -159,23 +159,22 @@ async function login(req, res) {
 }
 
 async function getCurrentUser(req, res) {
-  console.log(req.user);
-  User.findById(req.user._id).then((user) => {
+  try {
+    const user = await User.findById(req.user._id);
     if (!user) {
-      res.status(404).send({ message: 'Пользователь не найден' });
+      return res.status(404).send({ message: 'Пользователь не найден' });
     }
-    return res
-      .send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        _id: user._id,
-        email: user.email,
-      })
-      .catch((err) => {
-        res.status(401).send({ message: err.message });
-      });
-  });
+    return res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      email: user.email,
+    });
+  } catch (err) {
+    console.error(err); // добавляем вывод ошибки в консоль сервера
+    return res.status(500).send({ message: 'Ошибка на сервере' });
+  }
 }
 
 module.exports = {

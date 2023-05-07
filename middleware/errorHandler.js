@@ -2,6 +2,14 @@ const { isCelebrateError } = require('celebrate');
 const mongooseError = require('mongoose').Error;
 const { StatusCodes } = require('http-status-codes');
 
+class CustomError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.name = 'CustomError';
+  }
+}
+
 function errorHandler(err, res) {
   let statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
   let message = 'Internal Server Error';
@@ -17,9 +25,12 @@ function errorHandler(err, res) {
   } else if (err instanceof mongooseError.CastError || err.status === 404) {
     statusCode = StatusCodes.NOT_FOUND;
     message = 'Not Found';
+  } else if (err instanceof CustomError) {
+    statusCode = err.statusCode;
+    message = err.message;
   }
 
   res.status(statusCode).json({ message });
 }
 
-module.exports = { errorHandler };
+module.exports = { errorHandler, CustomError };

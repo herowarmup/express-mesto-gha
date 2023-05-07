@@ -1,12 +1,16 @@
+/* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { StatusCodes } = require('http-status-codes');
+
 const User = require('../models/user');
 const { errorHandler } = require('../middleware/errorHandler');
+const { CustomError } = require('../middleware/errorHandler');
 
 function getUsers(req, res) {
-  if (!req.user) {
-    res.status(401).send({ message: 'Авторизуйтесь' });
-  }
+  // if (!req.user) {
+  //   res.status(401).send({ message: 'Авторизуйтесь' });
+  // }
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => errorHandler(err, res));
@@ -18,13 +22,13 @@ async function getUser(req, res) {
   try {
     const user = await User.findById(id);
     if (!user) {
-      res.status(404).send({ message: 'Пользователь не найден' });
+      throw new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND);
     } else {
       res.send(user);
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Переданы некорректные данные' });
+      throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
     } else {
       errorHandler(err, res);
     }
@@ -39,7 +43,7 @@ async function createUser(req, res) {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).send({ message: 'Такой email уже зарегистрирован' });
+      throw new CustomError('Такой e-mail уже зарегистрирован!', StatusCodes.CONFLICT);
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -59,38 +63,28 @@ async function createUser(req, res) {
       email: user.email,
     };
 
-    res.status(201).send({ user: userWithoutPassword });
+    res.status(StatusCodes.CREATED).send({ user: userWithoutPassword });
   } catch (err) {
     errorHandler(err, res);
     res.status(500).send({});
   }
-
-  return undefined;
 }
 
 async function updateUser(req, res) {
   const { name, about } = req.body;
 
-  if (!req.user) {
-    return res.status(401).json({ message: 'Необходима авторизация' });
-  }
+  // if (!req.user) {
+  //   return res.status(401).json({ message: 'Необходима авторизация' });
+  // }
 
   const userId = req.user._id;
 
-  if (!name) {
-    return res.status(400).json({ message: 'Имя обязательно для заполнения' });
-  }
-
-  if (name.length < 2) {
-    return res
-      .status(400)
-      .json({ message: 'Имя должно быть не менее 2 символов' });
+  if (!name || name.length < 2) {
+    throw new CustomError('Имя должно быть не менее 2 символов', StatusCodes.BAD_REQUEST);
   }
 
   if (!about) {
-    return res
-      .status(400)
-      .json({ message: 'Описание обязательно для заполнения' });
+    throw new CustomError('Описание обязательно для заполнения', StatusCodes.BAD_REQUEST);
   }
 
   try {
@@ -100,22 +94,20 @@ async function updateUser(req, res) {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      return res.status(404).send({ message: 'Пользователь не найден' });
+      throw new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND);
     }
     return res.send(updatedUser);
   } catch (err) {
     errorHandler(err, res);
   }
-
-  return undefined;
 }
 
 async function updateAvatar(req, res) {
   const { avatar } = req.body;
 
-  if (!req.user) {
-    return res.status(401).json({ message: 'Необходима авторизация' });
-  }
+  // if (!req.user) {
+  //   return res.status(401).json({ message: 'Необходима авторизация' });
+  // }
 
   const userId = req.user._id;
 
@@ -129,7 +121,6 @@ async function updateAvatar(req, res) {
   } catch (err) {
     errorHandler(err, res);
   }
-  return undefined;
 }
 
 async function login(req, res) {
@@ -139,7 +130,7 @@ async function login(req, res) {
     const user = await User.findOne({ email }).select(password);
 
     if (!user) {
-      return res.status(401).send({ message: 'Пользователь не найден' });
+      throw new CustomError('Пользователь не найден', StatusCodes.UNAUTHORIZED);
     }
 
     const token = jwt.sign({ _id: user._id }, 'secret-phrase-1234', {
@@ -154,18 +145,18 @@ async function login(req, res) {
 
     return res.send({ token });
   } catch (err) {
-    return res.status(401).send({ message: err.message });
+    throw new CustomError('Необходима авторизация', StatusCodes.UNAUTHORIZED);
   }
 }
 
 async function getCurrentUser(req, res) {
   try {
-    if (!req.user) {
-      return res.status(401).send({ message: 'Пользователь не авторизован' });
-    }
+    // if (!req.user) {
+    //   return res.status(401).send({ message: 'Пользователь не авторизован' });
+    // }
     const user = await User.findById(req.user._id);
     if (!user) {
-      return res.status(404).send({ message: 'Пользователь не найден' });
+      throw new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND);
     }
     return res.send({
       name: user.name,
@@ -175,8 +166,7 @@ async function getCurrentUser(req, res) {
       email: user.email,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).send({ message: 'Ошибка на сервере' });
+    errorHandler(err, res);
   }
 }
 

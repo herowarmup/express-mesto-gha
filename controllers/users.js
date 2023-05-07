@@ -130,7 +130,7 @@ async function login(req, res) {
     const user = await User.findOne({ email }).select(password);
 
     if (!user) {
-      throw new CustomError('Пользователь не найден', StatusCodes.BAD_REQUEST);
+      throw new CustomError('Пользователь не найден', StatusCodes.UNAUTHORIZED);
     }
 
     const token = jwt.sign({ _id: user._id }, 'secret-phrase-1234', {

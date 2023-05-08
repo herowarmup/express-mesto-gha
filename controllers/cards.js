@@ -2,30 +2,29 @@
 const { StatusCodes } = require('http-status-codes');
 
 const Card = require('../models/card');
-const { errorHandler } = require('../middleware/errorHandler');
 const { CustomError } = require('../middleware/errorHandler');
 
-async function getCards(req, res) {
+async function getCards(req, res, next) {
   try {
     const cards = await Card.find({});
     res.send({ data: cards });
   } catch (err) {
-    errorHandler(err, res);
+    next(err);
   }
 }
 
-async function createCard(req, res) {
+async function createCard(req, res, next) {
   try {
     const { name, link } = req.body;
     const owner = req.user._id;
     const card = await Card.create({ name, link, owner });
     res.send(card);
   } catch (err) {
-    errorHandler(err, res);
+    next(err);
   }
 }
 
-async function deleteCard(req, res) {
+async function deleteCard(req, res, next) {
   try {
     const card = await Card.findOne({ _id: req.params.cardId });
     if (!card) {
@@ -40,12 +39,12 @@ async function deleteCard(req, res) {
     if (err.name === 'CastError') {
       throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
     } else {
-      errorHandler(err, res);
+      next(err);
     }
   }
 }
 
-async function likeCard(req, res) {
+async function likeCard(req, res, next) {
   const { cardId } = req.params;
 
   try {
@@ -63,12 +62,12 @@ async function likeCard(req, res) {
     if (err.name === 'CastError') {
       throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
     } else {
-      errorHandler(err, res);
+      next(err);
     }
   }
 }
 
-async function dislikeCard(req, res) {
+async function dislikeCard(req, res, next) {
   const { cardId } = req.params;
   const userId = req.user._id;
 
@@ -86,7 +85,7 @@ async function dislikeCard(req, res) {
     if (err.name === 'CastError') {
       throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
     } else {
-      errorHandler(err, res);
+      next(err);
     }
   }
 }

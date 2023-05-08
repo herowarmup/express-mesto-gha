@@ -4,16 +4,15 @@ const bcrypt = require('bcryptjs');
 const { StatusCodes } = require('http-status-codes');
 
 const User = require('../models/user');
-const { errorHandler } = require('../middleware/errorHandler');
 const { CustomError } = require('../middleware/errorHandler');
 
-function getUsers(req, res) {
+function getUsers(req, res, next) {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => errorHandler(err, res));
+    .catch(next);
 }
 
-async function getUser(req, res) {
+async function getUser(req, res, next) {
   const { id } = req.params;
 
   try {
@@ -27,12 +26,12 @@ async function getUser(req, res) {
     if (err.name === 'CastError') {
       throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
     } else {
-      errorHandler(err, res);
+      next(err);
     }
   }
 }
 
-async function createUser(req, res) {
+async function createUser(req, res, next) {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -62,11 +61,11 @@ async function createUser(req, res) {
 
     res.status(StatusCodes.CREATED).send({ user: userWithoutPassword });
   } catch (err) {
-    errorHandler(err, res);
+    next(err);
   }
 }
 
-async function updateUser(req, res) {
+async function updateUser(req, res, next) {
   const { name, about } = req.body;
 
   const userId = req.user._id;
@@ -82,11 +81,11 @@ async function updateUser(req, res) {
     }
     return res.send(updatedUser);
   } catch (err) {
-    errorHandler(err, res);
+    next(err);
   }
 }
 
-async function updateAvatar(req, res) {
+async function updateAvatar(req, res, next) {
   const { avatar } = req.body;
 
   const userId = req.user._id;
@@ -99,11 +98,11 @@ async function updateAvatar(req, res) {
     );
     res.send(updatedUser);
   } catch (err) {
-    errorHandler(err, res);
+    next(err);
   }
 }
 
-async function login(req, res) {
+async function login(req, res, next) {
   const { email, password } = req.body;
 
   try {
@@ -125,11 +124,11 @@ async function login(req, res) {
 
     return res.send({ token });
   } catch (err) {
-    errorHandler(err, res);
+    next(err);
   }
 }
 
-async function getCurrentUser(req, res) {
+async function getCurrentUser(req, res, next) {
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -143,7 +142,7 @@ async function getCurrentUser(req, res) {
       email: user.email,
     });
   } catch (err) {
-    errorHandler(err, res);
+    next(err);
   }
 }
 

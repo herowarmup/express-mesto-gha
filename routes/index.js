@@ -5,8 +5,6 @@ const users = require('./users');
 const cards = require('./cards');
 const auth = require('../middleware/auth');
 
-const { CustomError } = require('../middleware/errorHandler');
-
 const { createUser, login } = require('../controllers/users');
 const { validateUserData } = require('../middleware/validators/userValidator');
 
@@ -16,8 +14,8 @@ router.post('/signin', validateUserData, login);
 router.use('/users', auth, users);
 router.use('/cards', auth, cards);
 
-router.use('*', auth, () => {
-  throw new CustomError('Страница не найдена', StatusCodes.NOT_FOUND);
+router.use('*', auth, (req, res) => {
+  res.status(StatusCodes.NOT_FOUND).json({ message: 'Страница не найдена' });
 });
 
 module.exports = router;

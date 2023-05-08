@@ -8,9 +8,6 @@ const { errorHandler } = require('../middleware/errorHandler');
 const { CustomError } = require('../middleware/errorHandler');
 
 function getUsers(req, res) {
-  // if (!req.user) {
-  //   res.status(401).send({ message: 'Авторизуйтесь' });
-  // }
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => errorHandler(err, res));
@@ -73,19 +70,7 @@ async function createUser(req, res) {
 async function updateUser(req, res) {
   const { name, about } = req.body;
 
-  // if (!req.user) {
-  //   return res.status(401).json({ message: 'Необходима авторизация' });
-  // }
-
   const userId = req.user._id;
-
-  if (!name || name.length < 2) {
-    throw new CustomError('Имя должно быть не менее 2 символов', StatusCodes.BAD_REQUEST);
-  }
-
-  if (!about) {
-    throw new CustomError('Описание обязательно для заполнения', StatusCodes.BAD_REQUEST);
-  }
 
   try {
     const updatedUser = await User.findByIdAndUpdate(
@@ -104,10 +89,6 @@ async function updateUser(req, res) {
 
 async function updateAvatar(req, res) {
   const { avatar } = req.body;
-
-  // if (!req.user) {
-  //   return res.status(401).json({ message: 'Необходима авторизация' });
-  // }
 
   const userId = req.user._id;
 
@@ -151,9 +132,6 @@ async function login(req, res) {
 
 async function getCurrentUser(req, res) {
   try {
-    // if (!req.user) {
-    //   return res.status(401).send({ message: 'Пользователь не авторизован' });
-    // }
     const user = await User.findById(req.user._id);
     if (!user) {
       throw new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND);

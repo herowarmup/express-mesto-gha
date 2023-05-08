@@ -7,9 +7,6 @@ const { CustomError } = require('../middleware/errorHandler');
 
 async function getCards(req, res) {
   try {
-    // if (!req.user) {
-    //   return res.status(401).json({ message: 'Необходима авторизация' });
-    // }
     const cards = await Card.find({});
     res.send({ data: cards });
   } catch (err) {
@@ -20,9 +17,6 @@ async function getCards(req, res) {
 async function createCard(req, res) {
   try {
     const { name, link } = req.body;
-    // if (!req.user) {
-    //   return res.status(401).json({ message: 'Необходима авторизация' });
-    // }
     const owner = req.user._id;
     const card = await Card.create({ name, link, owner });
     res.send(card);

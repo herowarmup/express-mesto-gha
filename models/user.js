@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Password должен быть заполнен'],
-    minlength: [8, 'Минимальная длина пароля - 8 символов'],
     select: false,
   },
   name: {
@@ -36,6 +35,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: defaultAvatar,
+    validate: {
+      validator: (v) => validator.isURL(v),
+      message: 'Некорректный URL',
+    },
   },
 });
 

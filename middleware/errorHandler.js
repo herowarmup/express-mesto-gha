@@ -22,9 +22,12 @@ function errorHandler(err, res) {
     statusCode = StatusCodes.BAD_REQUEST;
     const [errorKey, errorValue] = Object.entries(err.errors)[0];
     message = `Validation error for '${errorKey}': ${errorValue.message}`;
-  } else if (err instanceof mongooseError.CastError || err.status === 404) {
+  } else if (err instanceof mongooseError.CastError) {
+    statusCode = StatusCodes.BAD_REQUEST;
+    message = 'Invalid ID format';
+  } else if (err instanceof mongooseError.DocumentNotFoundError) {
     statusCode = StatusCodes.NOT_FOUND;
-    message = 'Not Found';
+    message = 'Document not found';
   } else if (err instanceof CustomError) {
     statusCode = err.statusCode;
     message = err.message;

@@ -1,12 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
-const { CustomError } = require('./errorHandler');
 
 const auth = (req, res, next) => {
   const token = req.cookies.jwt;
 
   if (!token) {
-    throw new CustomError('Необходима авторизация', StatusCodes.UNAUTHORIZED);
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Необходима авторизация' });
   }
 
   let payload;
@@ -14,11 +13,11 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'secret-phrase-1234');
   } catch (err) {
-    throw new CustomError('Необходима авторизация', StatusCodes.UNAUTHORIZED);
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Необходима авторизация' });
   }
 
   if (!payload) {
-    throw new CustomError('Необходима авторизация', StatusCodes.UNAUTHORIZED);
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Необходима авторизация' });
   }
 
   req.user = payload;

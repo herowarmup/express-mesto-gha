@@ -63,7 +63,6 @@ async function createUser(req, res) {
     res.status(StatusCodes.CREATED).send({ user: userWithoutPassword });
   } catch (err) {
     errorHandler(err, res);
-    res.status(500).send({});
   }
 }
 

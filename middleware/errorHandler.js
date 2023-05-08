@@ -10,7 +10,7 @@ class CustomError extends Error {
   }
 }
 
-function errorHandler(err, res) {
+function errorHandler(err, req, res) {
   let statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
   let message = 'Internal Server Error';
 
@@ -30,10 +30,10 @@ function errorHandler(err, res) {
     message = 'Document not found';
   } else if (err instanceof CustomError) {
     statusCode = err.statusCode;
-    res.status(statusCode).json({ message: err.message });
+    message = 'Произошла ошибка';
   }
 
-  return res.status(statusCode).json({ message });
+  res.status(statusCode).json({ message });
 }
 
 module.exports = { errorHandler, CustomError };

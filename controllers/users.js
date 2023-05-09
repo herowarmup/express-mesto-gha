@@ -122,7 +122,7 @@ async function login(req, res, next) {
       sameSite: true,
     });
 
-    return res.status(StatusCodes.OK).send();
+    return res.status(StatusCodes.OK).send({ });
   } catch (err) {
     next(err);
   }

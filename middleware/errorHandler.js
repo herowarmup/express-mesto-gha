@@ -30,7 +30,7 @@ function errorHandler(err, res) {
     message = 'Document not found';
   } else if (err instanceof CustomError) {
     statusCode = err.statusCode;
-    message = err.message;
+    message = { message: err.message };
   }
 
   res.status(statusCode).json({ message });

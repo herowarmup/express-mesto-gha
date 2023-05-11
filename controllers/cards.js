@@ -78,7 +78,7 @@ async function dislikeCard(req, res, next) {
       { new: true, runValidators: true },
     );
     if (!card) {
-      next(new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND));
+      return next(new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND));
     }
     res.send({ data: card });
   } catch (err) {

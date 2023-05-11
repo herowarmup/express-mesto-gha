@@ -28,16 +28,16 @@ async function deleteCard(req, res, next) {
   try {
     const card = await Card.findOne({ _id: req.params.cardId });
     if (!card) {
-      throw new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND);
+      next(new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND));
     } else if (card.owner.toString() !== req.user._id) {
-      throw new CustomError('Нельзя удалять чужие карточки', StatusCodes.FORBIDDEN);
+      next(new CustomError('Нельзя удалять чужие карточки', StatusCodes.FORBIDDEN));
     } else {
       const deletedCard = await Card.findByIdAndRemove(req.params.cardId);
       res.send({ data: deletedCard });
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
+      next(new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST));
     } else {
       next(err);
     }
@@ -54,13 +54,13 @@ async function likeCard(req, res, next) {
       { new: true, runValidators: true },
     );
     if (!card) {
-      throw new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND);
+      next(new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND));
     } else {
       res.send({ data: card });
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
+      next(new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST));
     } else {
       next(err);
     }
@@ -78,12 +78,12 @@ async function dislikeCard(req, res, next) {
       { new: true, runValidators: true },
     );
     if (!card) {
-      throw new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND);
+      next(new CustomError('Карточка не найдена', StatusCodes.NOT_FOUND));
     }
     res.send({ data: card });
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
+      next(new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST));
     } else {
       next(err);
     }

@@ -18,13 +18,13 @@ async function getUser(req, res, next) {
   try {
     const user = await User.findById(id);
     if (!user) {
-      throw new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND);
+      next(new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND));
     } else {
       res.send(user);
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST);
+      next(new CustomError('Переданы некорректные данные', StatusCodes.BAD_REQUEST));
     } else {
       next(err);
     }
@@ -39,7 +39,7 @@ async function createUser(req, res, next) {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new CustomError('Такой e-mail уже зарегистрирован!', StatusCodes.CONFLICT);
+      next(new CustomError('Такой e-mail уже зарегистрирован!', StatusCodes.CONFLICT));
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -77,7 +77,7 @@ async function updateUser(req, res, next) {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      throw new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND);
+      next(new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND));
     }
     return res.send(updatedUser);
   } catch (err) {
@@ -109,7 +109,7 @@ async function login(req, res, next) {
     const user = await User.findOne({ email }).select(password);
 
     if (!user) {
-      throw new CustomError('Пользователь не найден', StatusCodes.UNAUTHORIZED);
+      next(new CustomError('Пользователь не найден', StatusCodes.UNAUTHORIZED));
     }
 
     const token = jwt.sign({ _id: user._id }, 'secret-phrase-1234', {
@@ -132,7 +132,7 @@ async function getCurrentUser(req, res, next) {
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
-      throw new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND);
+      next(new CustomError('Пользователь не найден', StatusCodes.NOT_FOUND));
     }
     return res.send({
       name: user.name,
